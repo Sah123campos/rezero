@@ -1,10 +1,22 @@
 <!doctype html>
-<html>
+<html lang="pt-BR">
   <head>
-    <meta charset="utf8" />
+    <meta charset="utf-8" />
     <meta
       name="viewport"
       content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta
+      name="description"
+      content="Explore o universo de Re:Zero neste grimório de fã: personagens, arcos, magia, galeria e citações."
+    />
+    <meta name="theme-color" content="#0a0a0a" />
+    <title>Grimório de Re:Zero</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Montserrat:wght@500;600&family=Inter:wght@400;500&family=Shippori+Mincho:wght@500;700&display=swap"
+      rel="stylesheet"
     />
     <link
       rel="icon"
@@ -38,15 +50,6 @@
         display: none !important;
       }
     </style>
-  </head>
-  <body>
-    <title>Grimório de Re:Zero</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Montserrat:wght@500;600&family=Inter:wght@400;500&family=Shippori+Mincho:wght@500;700&display=swap"
-      rel="stylesheet"
-    />
     <style>
       /* Layout: grimório vertical em páginas escuras, cabeçalho fixo, seções com filetes dourados e vidro fosco */
       :root {
@@ -78,6 +81,9 @@
       }
       html {
         scroll-behavior: smooth;
+      }
+      section[id] {
+        scroll-margin-top: calc(76px + env(safe-area-inset-top, 0px));
       }
       body {
         background: var(--void);
@@ -983,6 +989,11 @@
         max-height: 70vh;
         aspect-ratio: var(--ar, 4/3);
         border: 1px solid var(--gold);
+        padding: 0;
+        background: none;
+        color: inherit;
+        font: inherit;
+        appearance: none;
         transition: transform 0.3s;
         cursor: zoom-in;
         overflow: hidden;
@@ -1213,7 +1224,8 @@
         }
       }
     </style>
-
+  </head>
+  <body>
     <div id="loader" role="status" aria-label="Carregando">
       <div>
         <svg
@@ -1365,12 +1377,12 @@
             class="counter-box rv"
             id="cbox"
             tabindex="0"
-            aria-label="Contador de mortes. Passe o mouse ou foque para reiniciar."
+            aria-label="Contador de mortes. Passe o mouse, toque ou foque para reiniciar."
           >
             <small>Mortes até agora</small>
             <div class="counter" id="counter" aria-live="off">0</div>
             <small id="cstate"
-              >Passe o mouse para voltar ao ponto de partida</small
+              >Passe o mouse ou toque para voltar ao ponto de partida</small
             >
           </div>
           <p class="death-line rv">A morte não é o fim... é apenas o começo.</p>
@@ -1491,12 +1503,30 @@
       </div>
     </footer>
 
-    <div id="lb" role="dialog" aria-modal="true" aria-label="Galeria ampliada">
-      <button class="lbb x" id="lbx" aria-label="Fechar">✕</button>
-      <button class="lbb p" id="lbp" aria-label="Anterior">‹</button>
-      <div class="stage" id="lbs"></div>
+    <div
+      id="lb"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Galeria ampliada"
+      aria-hidden="true"
+    >
+      <button class="lbb x" id="lbx" type="button" aria-label="Fechar">
+        ✕
+      </button>
+      <button class="lbb p" id="lbp" type="button" aria-label="Anterior">
+        ‹
+      </button>
+      <button
+        class="stage"
+        id="lbs"
+        type="button"
+        aria-label="Ampliar imagem"
+        aria-pressed="false"
+      ></button>
       <div class="cap" id="lbc"></div>
-      <button class="lbb n" id="lbn" aria-label="Próxima">›</button>
+      <button class="lbb n" id="lbn" type="button" aria-label="Próxima">
+        ›
+      </button>
     </div>
 
     <script>
@@ -2092,12 +2122,14 @@
         });
         var lb = $("#lb"),
           cur = 0,
-          lastFocus = null;
+          lastFocus = null,
+          previousBodyOverflow = "";
         function showLb() {
           var g = GAL[cur];
           $("#lbs").innerHTML = art(g);
           $("#lbs").style.setProperty("--ar", g.h);
           $("#lbs").classList.remove("zoom");
+          $("#lbs").setAttribute("aria-pressed", "false");
           $("#lbc").textContent = g.t + " · " + (cur + 1) + "/" + GAL.length;
         }
         function openLb(i) {
@@ -2105,10 +2137,15 @@
           cur = i;
           showLb();
           lb.classList.add("open");
+          lb.setAttribute("aria-hidden", "false");
+          previousBodyOverflow = document.body.style.overflow;
+          document.body.style.overflow = "hidden";
           $("#lbx").focus();
         }
         function closeLb() {
           lb.classList.remove("open");
+          lb.setAttribute("aria-hidden", "true");
+          document.body.style.overflow = previousBodyOverflow;
           if (lastFocus) lastFocus.focus();
         }
         function step(d) {
@@ -2123,7 +2160,8 @@
           step(1);
         };
         $("#lbs").onclick = function () {
-          this.classList.toggle("zoom");
+          var zoomed = this.classList.toggle("zoom");
+          this.setAttribute("aria-pressed", zoomed);
         };
         lb.addEventListener("click", function (e) {
           if (e.target === lb) closeLb();
@@ -2133,6 +2171,22 @@
           if (e.key === "Escape") closeLb();
           if (e.key === "ArrowLeft") step(-1);
           if (e.key === "ArrowRight") step(1);
+          if (e.key === "Tab") {
+            var controls = lb.querySelectorAll("button:not([disabled])");
+            var first = controls[0];
+            var last = controls[controls.length - 1];
+            if (e.shiftKey && document.activeElement === first) {
+              e.preventDefault();
+              last.focus();
+            } else if (
+              !e.shiftKey &&
+              (document.activeElement === last ||
+                !lb.contains(document.activeElement))
+            ) {
+              e.preventDefault();
+              first.focus();
+            }
+          }
         });
 
         /* quotes */
@@ -2485,10 +2539,12 @@
           cs.textContent = "Retornando ao ponto de partida...";
           setTimeout(function () {
             resetting = false;
-            cs.textContent = "Passe o mouse para voltar ao ponto de partida";
+            cs.textContent =
+              "Passe o mouse ou toque para voltar ao ponto de partida";
           }, 700);
         }
         cb.addEventListener("mouseenter", reset);
+        cb.addEventListener("touchstart", reset, { passive: true });
         cb.addEventListener("focus", reset);
 
         /* easter egg */
